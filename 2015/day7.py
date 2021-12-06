@@ -8,6 +8,8 @@ for line in data:
     if type(line[0]) is int: values[line[1]] = line[0]
     else: commands[line[1]] = line[0]
 
+print(values)
+
 while 'a' not in values:
     keysToPop = []
     for key in commands:
@@ -15,7 +17,9 @@ while 'a' not in values:
         if command[0] == 'NOT' and command[1] in values:
             values[key] = 65535 ^ values[command[1]]
         elif command[0] in values:
-            if command[2] in values:
+            if command[1] in values: # just x -> y
+                values[key] = values[command[1]]
+            elif command[2] in values:
                 if command[1] == 'AND': values[key] = int(values[command[0]]) & int(values[command[2]])
                 elif command[1] == 'OR': values[key] = int(values[command[0]]) | int(values[command[2]])
                 else: print('aaaaaaaaaa')
@@ -28,5 +32,5 @@ while 'a' not in values:
     for key in keysToPop:
         print(key, '<-', commands[key])
         commands.pop(key)
-        print(values)
+        #print(commands)
 print(commands)
