@@ -19,7 +19,6 @@ for i in data:
             if breakout: break
     stack = []
 print(sum)
-data = open('day10inputexample.txt', 'r').read().split('\n')
 
 scores = {')':1, ']':2, '}':3, '>':4}
 
@@ -33,21 +32,16 @@ for i in data:
     for j in i:
         if j in swap: stack.append(j)
         else:
-            for v in swap.values():
-                if j == v:
-                    if k == stack[-1]: stack.pop()
-                    else:
-                        print(i, 'corrupted')
-                        breakout = True
-                        break
+            if j == swap[stack[-1]]: stack.pop()
+            else:
+                breakout = True
+                break
             if breakout: break
     if breakout: continue
     print(i, ''.join(stack))
     stack = [swap[i] for i in stack]
-    print(i, ''.join(stack))
     while len(stack) != 0:
         lineScore *= 5
         lineScore += scores[stack.pop()]
     sum.append(lineScore)
-print(sum)
-#print(sorted(sum)[int(len(sum)/2+0.5)])
+print(sorted(sum)[int(len(sum)/2-0.5)])
