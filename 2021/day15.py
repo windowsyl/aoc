@@ -14,10 +14,13 @@ data = [[j if j<10 else j-9 for j in i] for i in data]
 maxy = len(data)
 maxx = len(data[0])
 
-Q = [(i, j) for i in range(maxy) for j in range(maxx)]
-dists = {i:float('inf') for i in Q}
+#Q = [(i, j) for i in range(maxy) for j in range(maxx)]
+#Q.pop(0)
+Q = [(1,0),(0,1)]
+
+dists = {i:float('inf') for i in [(i, j) for i in range(maxy) for j in range(maxx)]}
 dists.pop((0,0))
-Q.pop(0)
+
 dists[(0,1)] = data[0][1]
 dists[(1,0)] = data[1][0]
 
@@ -41,6 +44,7 @@ while Q:
             if alt < dists[v]:
                 dists[v] = alt
                 paths[v] = u
+                if v != (0,0): Q.append(v)
         except (IndexError, KeyError):
             continue
 
