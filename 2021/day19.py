@@ -4,6 +4,7 @@ for i in range(0, int(len(data)/2)):
     data.pop(i)
 for i in range(len(data)):
     data[i] = [[int(k) for k in j.split(',')] for j in data[i]]
+
 def checkScanners(a, b):
     for a1 in a[:-11]:
         for b1 in b:
@@ -11,33 +12,40 @@ def checkScanners(a, b):
             ac.remove(a1)
             bc = b.copy()
             bc.remove(b1)
-            bloc = [a1[0]+b1[0], a1[1]+b1[1], a1[2]+b1[2]]
+            bloc = [a1[0]-b1[0], a1[1]-b1[1], a1[2]-b1[2]]
             countAligned = 0
             for a2 in ac:
                 for b2 in bc:
-                    if [a2[0]+b2[0], a2[1]+b2[1], a2[2]+b2[2]] == bloc:
+                    if [a2[0]-b2[0], a2[1]-b2[1], a2[2]-b2[2]] == bloc:
                         countAligned+=1
-                        #print(a1, b1, a2, b2, countAligned, bloc)
+                        # print(a1, b1, a2, b2, countAligned, bloc)
                         bc.remove(b2)
                         break
                 if countAligned >= 11: return bloc
 
-def rotateflip(data, r, f):
-    data = data.copy()
-    for i in range(r):
-        data = [[j, k, i] for i, j, k in data]
-    data = [[f[0]*j[0], f[1]*j[1], f[2]*j[2]] for j in data]
+def rotateflip(data, axis, up):
+    data = [i.copy() for i in data]
+    match axis:
+        case 0: pass
+        case 1: #face -x
+            data = [[-x, -y, z] for x, y, z in data]
+        case 2: #face y
+            data = [[y, -x, z] for x, y, z in data]
+        case 3: #face -y
+            data = [[-y, x, z] for x, y, z in data]
+        case 4: #face z
+            data = [[z, y, -x] for x, y, z in data]
+        case 5: #face -z
+            data = [[-z, y, x] for x, y, z in data]
+    for i in range(up):
+        data = [[x, z, -y] for x, y, z in data]
     return data
 
 def checkDirections(a, b):
-    b = b.copy() #modify b orientation
-    flips = [[1,1,1],[1,1,-1],[1,-1,1],[-1,1,1],[-1,-1,1],[-1,1,-1],[1,-1,-1],[-1,-1,-1]]
-    for z in range(3):
-        for i in flips:
-            bc = rotateflip(b, z, i) #data, rotations, coord flips
-            bloc = checkScanners(a, bc)
-            if bloc: return bloc, z, i 
-            #else: print(z, i, 'failed')
+    for axis in range(6): #facing:
+        for up in range(4):
+            bc = rotateflip(b, axis, up)
+            if bloc := checkScanners(a, bc): return bloc, axis, up
 
 def connectScanners(data):
     notcollected = list(range(len(data)))
@@ -53,18 +61,15 @@ def connectScanners(data):
         for i in notcollected:
             print(i)
             # print('\n', collectivedata)
-            bdata = checkDirections(collectivedata, data[i])
-            if not bdata: continue
-            bloc, brotates, bflips = bdata
-            print(i, bloc)
-            b = rotateflip(data[i], brotates, bflips)
-            b = [[bloc[i]-j[i] for i in range(3)] for j in b]
-
-            for j in b:
-                if j not in collectivedata: collectivedata.append(j)
-            notcollected.remove(i) #does stuff in wonky order
+            if bdata:=checkDirections(collectivedata, data[i]):
+                bloc, baxis, bup = bdata
+                print(i, bloc)
+                b = rotateflip(data[i], baxis, bup)
+                b = [[bloc[i]+j[i] for i in range(3)] for j in b]
+                #for z in b: print(z)
+                for j in b:
+                    if j not in collectivedata: collectivedata.append(j)
+                notcollected.remove(i) #does stuff in wonky order
     print(collectivedata, len(collectivedata))
-    
 
 connectScanners(data)
-
